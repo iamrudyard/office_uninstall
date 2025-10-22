@@ -1,35 +1,49 @@
 # =====================================================
-#  Silent Office + Office & OneNote Uninstaller (Auto Restart)
-#  Compatible with: irm <url> | iex
-#  Requires: Admin rights
+#  Visible Office + OneNote Uninstaller (Auto Restart)
+#  Works with irm <url> | iex
+#  Displays progress while running
 # =====================================================
+
+# --- Force window visible ---
+$Host.UI.RawUI.WindowTitle = "Microsoft Office & OneNote Uninstaller"
+Write-Host ""
+Write-Host "This script is running created by RICTU"
+Write-Host "🧹 Starting full uninstall of Microsoft Office and OneNote..." -ForegroundColor Cyan
+Write-Host "------------------------------------------------------------"
+Write-Host ""
 
 # --- Ensure running as Administrator ---
 if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Host "🔒 Elevating privileges..."
-    Start-Process powershell "-ExecutionPolicy Bypass -NoProfile -File `"$PSCommandPath`"" -Verb RunAs
+    Write-Host "🔒 Elevating privileges..." -ForegroundColor Yellow
+    Start-Process powershell "-ExecutionPolicy Bypass -NoProfile -WindowStyle Normal -File `"$PSCommandPath`"" -Verb RunAs
     exit
 }
 
-Write-Host "🧹 Starting full silent uninstall of Microsoft Office and OneNote..." -ForegroundColor Cyan
-
-# --- Gather uninstall commands for Office and OneNote ---
+# --- Uninstall Office and OneNote products ---
 $officeProducts = Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall" , "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall" |
     Where-Object { ($_.GetValue("DisplayName") -like "*Microsoft Office*" -or $_.GetValue("DisplayName") -like "*OneNote*") -and ($_.GetValue("UninstallString")) }
 
-foreach ($app in $officeProducts) {
-    $displayName = $app.GetValue("DisplayName")
-    $uninstallCmd = $app.GetValue("UninstallString")
-
-    if ($uninstallCmd) {
-        Write-Host "🗑️ Uninstalling: $displayName ..."
+if ($officeProducts.Count -eq 0) {
+    Write-Host "⚠️ No Office or OneNote products detected." -ForegroundColor Yellow
+} else {
+    foreach ($app in $officeProducts) {
+        $displayName = $app.GetValue("DisplayName")
+        $uninstallCmd = $app.GetValue("UninstallString")
+        Write-Host "🗑️ Uninstalling: $displayName ..." -ForegroundColor White
         try {
-            Start-Process cmd.exe "/c $uninstallCmd /quiet /norestart" -Wait -WindowStyle Hidden
+            Start-Process cmd.exe "/c $uninstallCmd /quiet /norestart" -Wait -WindowStyle Normal
+            Write-Host "✅ Removed: $displayName" -ForegroundColor Green
         } catch {
-            Write-Warning "Failed to uninstall $displayName"
+            Write-Warning "❌ Failed to uninstall $displayName"
         }
     }
 }
+
+# --- Terminate Click-to-Run processes (Office 365) ---
+Write-Host ""
+Write-Host "🧩 Stopping Office Click-to-Run services..." -ForegroundColor Cyan
+Stop-Service -Name "ClickToRunSvc" -ErrorAction SilentlyContinue
+Get-Process | Where-Object { $_.ProcessName -match "OfficeClickToRun|OfficeC2RClient|OneNote|WinWord|Excel|PowerPoint|Outlook" } | Stop-Process -Force -ErrorAction SilentlyContinue
 
 # --- Remove leftover folders ---
 $folders = @(
@@ -62,8 +76,9 @@ foreach ($reg in $regPaths) {
     }
 }
 
+Write-Host ""
 Write-Host "✅ Microsoft Office and OneNote have been completely removed." -ForegroundColor Green
-Write-Host "💻 System will restart automatically in 10 seconds..." -ForegroundColor Yellow
+Write-Host "💻 System will restart automatically in 15 seconds..." -ForegroundColor Yellow
 
-Start-Sleep -Seconds 10
+Start-Sleep -Seconds 15
 Restart-Computer -Force
