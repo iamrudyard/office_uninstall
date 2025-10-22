@@ -22,7 +22,7 @@ param(
 
     # URLs (replace with your actual raw URLs - GitHub raw links or other hosts)
     $URLs = @(
-        'https://raw.githubusercontent.com/<yourusername>/office-uninstall-tool/main/Uninstall_Office_and_OneNote_AutoRestart.cmd',
+        'https://raw.githubusercontent.com/iamrudyard/office_uninstall/main/uninstall_office.cmd',
         # add mirrors if you have them:
         # 'https://raw.fastgit.org/<yourusername>/office-uninstall-tool/main/Uninstall_Office_and_OneNote_AutoRestart.cmd',
         # 'https://your.other.host/path/Uninstall_Office_and_OneNote_AutoRestart.cmd'
