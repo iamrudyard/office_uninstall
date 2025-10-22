@@ -10,7 +10,7 @@ try {
 
     $response = Invoke-RestMethod -Uri $url -UseBasicParsing
     if ($response) {
-        $tempFile = "$env:TEMP\office_uninstall_nosara.cmd"
+        $tempFile = "$env:TEMP\uninstall_office.cmd"
         Set-Content -Path $tempFile -Value $response -Encoding ASCII
         Write-Host "[*] Running Office uninstaller silently..." -ForegroundColor Yellow
         Start-Process cmd.exe -ArgumentList "/c", $tempFile -Verb RunAs -WindowStyle Hidden
