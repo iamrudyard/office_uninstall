@@ -5,7 +5,7 @@
 # irm https://raw.githubusercontent.com/iamrudyard/office_uninstall/main/xscript.ps1 | iex
 
 try {
-    $url = 'https://raw.githubusercontent.com/iamrudyard/office_uninstall/refs/heads/main/uninstall_office.cmd'
+    $url = 'https://raw.githubusercontent.com/iamrudyard/office_uninstall/main/uninstall_office.cmd'
     Write-Host "[*] Downloading Office uninstaller..." -ForegroundColor Cyan
 
     $response = Invoke-RestMethod -Uri $url -UseBasicParsing
