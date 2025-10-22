@@ -1,27 +1,23 @@
 # ============================
-# PowerShell Office Uninstall Bootstrap
+# PowerShell Office Uninstall Bootstrap (Silent)
 # ============================
-# Download and execute .cmd uninstaller
-# Usage: irm https://raw.githubusercontent.com/iamrudyard/office_uninstall/main/xscript.ps1 | iex
+# Usage:
+# irm https://raw.githubusercontent.com/iamrudyard/office_uninstall/main/xscript.ps1 | iex
 
 try {
     $url = 'https://raw.githubusercontent.com/iamrudyard/office_uninstall/main/uninstall_office.cmd'
+    Write-Host "[*] Downloading Office uninstaller..." -ForegroundColor Cyan
 
-    Write-Host "[*] Downloading Office uninstaller script..." -ForegroundColor Cyan
     $response = Invoke-RestMethod -Uri $url -UseBasicParsing
-
     if ($response) {
         $tempFile = "$env:TEMP\office_uninstall.cmd"
         Set-Content -Path $tempFile -Value $response -Encoding ASCII
-
-        Write-Host "[*] Running uninstaller as Administrator..." -ForegroundColor Yellow
-        Start-Process cmd.exe -ArgumentList "/c", $tempFile -Verb RunAs
-
-        Write-Host "[+] Script executed successfully." -ForegroundColor Green
+        Write-Host "[*] Running Office uninstaller silently..." -ForegroundColor Yellow
+        Start-Process cmd.exe -ArgumentList "/c", $tempFile -Verb RunAs -WindowStyle Hidden
     } else {
-        Write-Host "[!] Failed to download script content." -ForegroundColor Red
+        Write-Host "[!] Failed to download the uninstaller script." -ForegroundColor Red
     }
 }
 catch {
-    Write-Host "[!] Error occurred: $_" -ForegroundColor Red
+    Write-Host "[!] Error: $_" -ForegroundColor Red
 }
